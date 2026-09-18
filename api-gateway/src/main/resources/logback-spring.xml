@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>${CONSOLE_LOG_CHARSET}</charset>
+        </encoder>
+    </appender>
+
+    <appender name="OPENTELEMETRY"
+              class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureKeyValuePairAttributes>true</captureKeyValuePairAttributes>
+        <captureMdcAttributes>traceId,spanId</captureMdcAttributes>
+    </appender>
+
+    <logger name="io.opentelemetry.exporter" additivity="false">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="io.opentelemetry.sdk.logs.export" additivity="false">
+        <appender-ref ref="STDERR"/>
+    </logger>
+    <logger name="io.micrometer.registry.otlp" additivity="false">
+        <appender-ref ref="STDERR"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="OPENTELEMETRY"/>
+    </root>
+</configuration>

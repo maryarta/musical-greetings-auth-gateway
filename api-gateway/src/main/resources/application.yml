@@ -1,0 +1,142 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          metrics:
+            path-tags:
+              enabled: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+gateway:
+  routes:
+    auth-service-url: ${AUTH_SERVICE_URL}
+    congrats-service-url: ${CONGRATS_SERVICE_URL}
+  rate-limits:
+    endpoints:
+      auth-anonymous: ${RATE_LIMIT_AUTH_ANONYMOUS:10}
+      auth-refresh: ${RATE_LIMIT_AUTH_REFRESH:10}
+      auth-logout: ${RATE_LIMIT_AUTH_LOGOUT:10}
+      holidays: ${RATE_LIMIT_HOLIDAYS:60}
+      holiday: ${RATE_LIMIT_HOLIDAY:60}
+      music-types: ${RATE_LIMIT_MUSIC_TYPES:60}
+      congrats-history: ${RATE_LIMIT_CONGRATS_HISTORY:60}
+      public-congrats: ${RATE_LIMIT_PUBLIC_CONGRATS:60}
+      public-congrats-video: ${RATE_LIMIT_PUBLIC_CONGRATS_VIDEO:60}
+      input-prompt: ${RATE_LIMIT_INPUT_PROMPT:3}
+      input-voice: ${RATE_LIMIT_INPUT_VOICE:3}
+      input-template: ${RATE_LIMIT_INPUT_TEMPLATE:3}
+      generate-lyrics: ${RATE_LIMIT_GENERATE_LYRICS:5}
+      generate-image: ${RATE_LIMIT_GENERATE_IMAGE:5}
+      generate-music: ${RATE_LIMIT_GENERATE_MUSIC:5}
+      publish: ${RATE_LIMIT_PUBLISH:2}
+      push-token-set: ${RATE_LIMIT_PUSH_TOKEN_SET:10}
+      push-token-delete: ${RATE_LIMIT_PUSH_TOKEN_DELETE:10}
+      draft: ${RATE_LIMIT_DRAFT:60}
+    global-endpoints:
+      auth-anonymous: ${GLOBAL_RATE_LIMIT_AUTH_ANONYMOUS:1000}
+      auth-refresh: ${GLOBAL_RATE_LIMIT_AUTH_REFRESH:1000}
+      auth-logout: ${GLOBAL_RATE_LIMIT_AUTH_LOGOUT:1000}
+      holidays: ${GLOBAL_RATE_LIMIT_HOLIDAYS:6000}
+      holiday: ${GLOBAL_RATE_LIMIT_HOLIDAY:6000}
+      music-types: ${GLOBAL_RATE_LIMIT_MUSIC_TYPES:6000}
+      congrats-history: ${GLOBAL_RATE_LIMIT_CONGRATS_HISTORY:6000}
+      public-congrats: ${GLOBAL_RATE_LIMIT_PUBLIC_CONGRATS:6000}
+      public-congrats-video: ${GLOBAL_RATE_LIMIT_PUBLIC_CONGRATS_VIDEO:6000}
+      input-prompt: ${GLOBAL_RATE_LIMIT_INPUT_PROMPT:300}
+      input-voice: ${GLOBAL_RATE_LIMIT_INPUT_VOICE:300}
+      input-template: ${GLOBAL_RATE_LIMIT_INPUT_TEMPLATE:300}
+      generate-lyrics: ${GLOBAL_RATE_LIMIT_GENERATE_LYRICS:500}
+      generate-image: ${GLOBAL_RATE_LIMIT_GENERATE_IMAGE:500}
+      generate-music: ${GLOBAL_RATE_LIMIT_GENERATE_MUSIC:500}
+      publish: ${GLOBAL_RATE_LIMIT_PUBLISH:200}
+      push-token-set: ${GLOBAL_RATE_LIMIT_PUSH_TOKEN_SET:1000}
+      push-token-delete: ${GLOBAL_RATE_LIMIT_PUSH_TOKEN_DELETE:1000}
+      draft: ${GLOBAL_RATE_LIMIT_DRAFT:6000}
+
+security:
+  jwt:
+    issuer: ${JWT_ISSUER:http://localhost:8082}
+    audience: ${JWT_AUDIENCE:musical-greetings-api}
+    secret: ${JWT_SECRET}
+    clock-skew: ${JWT_CLOCK_SKEW:30s}
+
+server:
+  port: ${SERVER_PORT:8080}
+  # The gateway must only be reachable through Caddy, which sanitizes forwarded headers.
+  forward-headers-strategy: framework
+
+monium:
+  enabled: ${MONIUM_ENABLED:false}
+  api-key: ${MONIUM_API_KEY:}
+  project: ${MONIUM_PROJECT:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  logging:
+    export:
+      otlp:
+        enabled: ${MONIUM_ENABLED:false}
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      slo:
+        http.server.requests:
+          - 50ms
+          - 100ms
+          - 250ms
+          - 500ms
+          - 1s
+          - 2s
+          - 5s
+          - 10s
+  opentelemetry:
+    enabled: ${MONIUM_ENABLED:false}
+    resource-attributes:
+      service.name: ${spring.application.name}
+      cluster: ${MONIUM_CLUSTER:api-gateway-test}
+    logging:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_LOGS_ENDPOINT:https://ingest.monium.yandex.cloud/otlp/v1/logs}
+          headers:
+            Authorization: "Api-Key ${MONIUM_API_KEY:}"
+            x-monium-project: ${MONIUM_PROJECT:}
+    tracing:
+      export:
+        otlp:
+          endpoint: ${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT:https://ingest.monium.yandex.cloud/otlp/v1/traces}
+          headers:
+            Authorization: "Api-Key ${MONIUM_API_KEY:}"
+            x-monium-project: ${MONIUM_PROJECT:}
+  otlp:
+    metrics:
+      export:
+        enabled: ${MONIUM_ENABLED:false}
+        url: ${OTEL_EXPORTER_OTLP_METRICS_ENDPOINT:https://ingest.monium.yandex.cloud/otlp/v1/metrics}
+        headers:
+          Authorization: "Api-Key ${MONIUM_API_KEY:}"
+          x-monium-project: ${MONIUM_PROJECT:}
+        aggregation-temporality: delta
+        step: 60s
+  tracing:
+    export:
+      otlp:
+        enabled: ${MONIUM_ENABLED:false}
+    propagation:
+      type: w3c
+    sampling:
+      probability: ${MONIUM_TRACING_SAMPLING_PROBABILITY:0.1}
