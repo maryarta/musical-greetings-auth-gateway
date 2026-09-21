@@ -4,4 +4,3 @@
 .gradle/
 .idea/
 **/build/
-/demo-backend/README.md
