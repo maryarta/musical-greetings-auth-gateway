@@ -1,0 +1,4 @@
+gateway:
+  routes:
+    auth-service-url: ${AUTH_SERVICE_URL:http://localhost:8082}
+    congrats-service-url: ${CONGRATS_SERVICE_URL:http://localhost:8081}

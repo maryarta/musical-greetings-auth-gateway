@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+.gradle/
+.idea/
+**/build/
+/demo-backend/README.md

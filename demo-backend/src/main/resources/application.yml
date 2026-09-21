@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: demo-backend
+
+server:
+  port: ${SERVER_PORT:8081}
+
+logging:
+  pattern:
+    level: "%5p [requestId=%X{requestId:-none}]"

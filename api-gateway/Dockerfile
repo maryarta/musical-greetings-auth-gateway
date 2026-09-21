@@ -1,11 +1,9 @@
-# Build context must be /backend, not /backend/api-gateway.
 FROM eclipse-temurin:25-jdk AS build
 
 WORKDIR /workspace
 
 COPY . .
 
-# Normalize Windows line endings and make the wrapper executable.
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 
 RUN ./gradlew :api-gateway:bootJar --no-daemon

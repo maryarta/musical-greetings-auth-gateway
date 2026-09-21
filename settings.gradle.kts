@@ -13,3 +13,4 @@ rootProject.name = "musical-greetings-auth-gateway"
 
 include("auth-service")
 include("api-gateway")
+include("demo-backend")

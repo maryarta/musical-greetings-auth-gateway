@@ -1,11 +1,9 @@
-# Build context must be /backend, not /backend/auth-service.
 FROM eclipse-temurin:25-jdk AS build
 
 WORKDIR /workspace
 
 COPY . .
 
-# Normalize Windows line endings and make the wrapper executable.
 RUN sed -i 's/\r$//' gradlew && chmod +x gradlew
 
 RUN ./gradlew :auth-service:bootJar --no-daemon
@@ -20,6 +18,6 @@ WORKDIR /app
 
 COPY --from=build /workspace/app.jar /app/app.jar
 
-EXPOSE 8080
+EXPOSE 8082
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
